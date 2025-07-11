@@ -1,8 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, url_for, render_template, session, redirect
 import sqlite3
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY")
 
 DATABASE = "event_tracker.db"
 
@@ -60,8 +64,33 @@ def init_db():
 
 @app.route("/")
 def index():
-    return "Event Tracker Home"
+    return redirect(url_for('login'))
 
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+        error = None
+        if request.method == 'POST':
+                username = request.form['username']
+                password = request.form['password']
+
+                with sqlite3.connect(DATABASE) as connection:
+                        cursor = connection.cursor()
+                        cursor.execute("""
+                                SELECT * FROM users 
+                                WHERE username = ? AND password = ?
+                        """, (username, password))
+                        user = cursor.fetchone()
+
+                        if user:
+                                session['user_id'] = user[0]
+                                session['username'] = user[1]
+                                session['role'] = user[3]
+                                return f"Welcome {user[1]}! You are logged in as {user[3]}."
+                        else:
+                                error = "Invalid username or password"
+        
+        return render_template('login.html', error=error)
+    
 init_db()
 
 if __name__ == "__main__":
