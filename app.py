@@ -57,3 +57,7 @@ def init_db():
 
         connection.commit()
         print("Database and tables initialized successfully")
+
+@app.route("/")
+def index():
+    return "Event Tracker Home"
