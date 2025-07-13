@@ -85,12 +85,23 @@ def login():
                                 session['user_id'] = user[0]
                                 session['username'] = user[1]
                                 session['role'] = user[3]
-                                return f"Welcome {user[1]}! You are logged in as {user[3]}."
+                                return redirect(url_for('dashboard'))
                         else:
                                 error = "Invalid username or password"
         
         return render_template('login.html', error=error)
-    
+
+@app.route("/dashboard")
+def dashboard():
+      if 'user_id' not in session:
+            return redirect(url_for('login'))
+      return render_template("dashboard.html")
+
+@app.route("/logout")
+def logout():
+      session.clear()
+      return redirect(url_for('login'))
+
 init_db()
 
 if __name__ == "__main__":

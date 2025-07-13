@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard - Event Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Welcome, {{ session['username'] }}</h1>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </header>
+
+    <main class="container">
+        <h2>Dashboard</h2>
+        <p>Your role: <strong>{{ session['role'] }}</strong></p>
+
+        <div class="card">
+            <h3>Schedule Venue</h3>
+            <p>View available venues and borrow equipment</p>
+            <a href="#">Go to Schedule</a>
+        </div>
+
+        <div class="card">
+            <h3>View Bookings</h3>
+            <p>Check your upcoming reservations</p>
+            <a href="#">View Bookings</a>
+        </div>
+    </main>
+</body>
+</html>
