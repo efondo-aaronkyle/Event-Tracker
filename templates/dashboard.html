@@ -8,23 +8,78 @@
 <body>
     <header>
         <h1>Welcome, {{ session['username'] }}</h1>
+        <div class="role-label">{{ session['role'] | upper }}</div>
         <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
     </header>
 
     <main class="container">
-        <h2>Dashboard</h2>
-        <p>Your role: <strong>{{ session['role'] }}</strong></p>
-
-        <div class="card">
-            <h3>Schedule Venue</h3>
-            <p>View available venues and borrow equipment</p>
-            <a href="#">Go to Schedule</a>
+        <h2>Dashboard Overview</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Used Venues</h3>
+                <p>4</p>
+            </div>
+            <div class="stat-card">
+                <h3>Available Venues</h3>
+                <p>6</p>
+            </div>
+            <div class="stat-card">
+                <h3>Used Equipments</h3>
+                <p>10</p>
+            </div>
+            <div class="stat-card">
+                <h3>Available Equipments</h3>
+                <p>18</p>
+            </div>
         </div>
 
-        <div class="card">
-            <h3>View Bookings</h3>
-            <p>Check your upcoming reservations</p>
-            <a href="#">View Bookings</a>
+        <div class="actions-grid">
+            {% if session['role'] == 'org' %}
+                <div class="card">
+                    <h3>Schedule Venue</h3>
+                    <p>View available venues and borrow equipment</p>
+                    <a href="#">Go to Schedule</a>
+                </div>
+
+                <div class="card">
+                    <h3>View Bookings</h3>
+                    <p>Check your upcoming reservations</p>
+                    <a href="#">View Bookings</a>
+                </div>
+            {% else %}
+                <div class="card">
+                    <h3>Manage Venues</h3>
+                    <p>Add, edit, and delete venue records</p>
+                    <a href="#">Manage Venues</a>
+                </div>
+
+                <div class="card">
+                    <h3>Manage Equipment</h3>
+                    <p>View and manage equipment inventory</p>
+                    <a href="#">Manage Equipment</a>
+                </div>
+
+                <div class="card">
+                    <h3>Events History</h3>
+                    <p>Review past reservations and usage logs</p>
+                    <a href="#">View History</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="calendar-section">
+            <h3>Calendar (Upcoming Events)</h3>
+            <div class="calendar-placeholder">📅 [Calendar UI Placeholder]</div>
+        </div>
+
+        <div class="history-section">
+            <h3>Recent Scheduled Events</h3>
+            <ul>
+                <li>BSIT reserved Engr AVR - July 15, 2025</li>
+                <li>DOMT reserved Gym - July 16, 2025</li>
+                <li>BSEDM reserved DOST Lab - July 17, 2025</li>
+            </ul>
         </div>
     </main>
 </body>
