@@ -166,3 +166,23 @@ h2 {
 .card a:hover {
     text-decoration: underline;
 }
+
+.fc-toolbar-title {
+    color: #f1f1f1;
+}
+
+.fc-button, .fc-button-primary {
+    background-color: #f15d27;
+    border-color: #f15d27;
+    color: #fff;
+}
+
+.fc-daygrid-day-number {
+    color: #fff;
+}
+
+.fc-event {
+    background-color: #ffc107;
+    color: #000;
+    border: none;
+}
