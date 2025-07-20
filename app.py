@@ -25,7 +25,8 @@ def init_db():
                 CREATE TABLE IF NOT EXISTS venues (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         name TEXT NOT NULL,
-                        description TEXT
+                        capacity INTEGER,
+                        location TEXT
                 )
         """)
         cursor.execute("""
@@ -90,11 +91,49 @@ def login():
 
 @app.route("/dashboard")
 def dashboard():
-      if 'user_id' not in session:
+        if 'user_id' not in session:
+                return redirect(url_for('login'))
+      
+        return render_template("dashboard.html")
+
+@app.route("/manage_venues")
+def manage_venues():
+        if 'user_id' not in session:
+                return render_template(url_for('login'))
+      
+        with sqlite3.connect(DATABASE) as connection:
+               connection.row_factory = sqlite3.Row
+               cursor = connection.cursor()
+               cursor.execute("SELECT * FROM venues")
+               venues = cursor.fetchall()
+
+        venue_list = []
+        for row in venues:
+                venue = dict(row)
+                venue['is_available'] = True
+                venue_list.append(venue)
+               
+        return render_template('manage_venues.html', venues=venues)
+
+@app.route("/add_venue", methods=['POST'])
+def add_venue():
+        if 'user_id' not in session or session['role'] != 'admin':
             return redirect(url_for('login'))
       
-      return render_template("dashboard.html")
+        name = request.form['name']
+        capacity = request.form['capacity']
+        location = request.form['location']
 
+        with sqlite3.connect(DATABASE) as connection:
+                cursor = connection.cursor()
+                cursor.execute("""
+                        INSERT INTO venues (name, capacity, location)
+                        VALUES (?, ?, ?)
+                """, (name, capacity, location))
+                connection.commit()
+        
+        return redirect(url_for('manage_venues'))
+        
 @app.route("/logout")
 def logout():
       session.clear()

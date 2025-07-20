@@ -210,3 +210,19 @@ h2 {
 .card-text {
     font-size: 0.95rem;
 }
+
+.modal-content {
+    border-radius: 12px;
+}
+
+.modal-header, .modal-footer {
+    background-color: #1f1f1f;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
