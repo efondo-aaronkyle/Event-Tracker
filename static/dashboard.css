@@ -186,3 +186,27 @@ h2 {
     color: #000;
     border: none;
 }
+
+.card {
+    border-radius: 1rem;
+    transition: all ease-in-out 0.1s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.recent-events-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 0.95rem;
+}

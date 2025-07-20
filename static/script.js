@@ -11,15 +11,15 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         events: [
             {
-                title: 'BSIT - Engr AVR',
+                title: 'MS - Engr AVR',
                 start: '2025-07-15'
             },
             {
-                title: 'DOMT - Gym',
+                title: 'PASOA - Gym',
                 start: '2025-07-16'
             },
             {
-                title: 'BSEDM - DOST Lab',
+                title: 'CS - DOST Lab',
                 start: '2025-07-17'
             }
         ]

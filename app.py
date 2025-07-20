@@ -43,16 +43,13 @@ def init_db():
         if cursor.fetchone()[0] == 0:
             users = [
                 ('admin', 'admin123', 'admin'),
-                ('bsoa', 'bsoa123', 'org'),
-                ('domt', 'domt123', 'org'),
-                ('bsit', 'bsit123', 'org'),
-                ('dit', 'dit123', 'org'),
-                ('bsedm', 'bsedm123', 'org'),
-                ('bsede', 'bsede123', 'org'),
-                ('bsbahrm', 'bsbahrm123', 'org'),
-                ('bsbamm', 'bsbamm123', 'org'),
-                ('bsme', 'bsme123', 'org'),
-                ('bsece', 'bsece123', 'org')
+                ('pasoa', 'pasoa123', 'org'),
+                ('cs', 'cs123', 'org'),
+                ('ms', 'ms123', 'org'),
+                ('jpmap', 'jpmap123', 'org'),
+                ('jma', 'jma123', 'org'),
+                ('psme', 'psme123', 'org'),
+                ('aeces', 'aeces123', 'org')
             ]
             cursor.executemany("""
                     INSERT INTO users (username, password, role) 
