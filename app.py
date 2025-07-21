@@ -133,7 +133,39 @@ def add_venue():
                 connection.commit()
         
         return redirect(url_for('manage_venues'))
+
+@app.route("/edit_venue/<int:venue_id>", methods=['POST'])
+def edit_venue(venue_id):
+        if 'user_id' not in session or session['role'] != 'admin':
+                return
         
+        name = request.form['name']
+        capacity = request.form['capacity']
+        location = request.form['location']
+
+        with sqlite3.connect(DATABASE) as connection:
+                cursor = connection.cursor()
+                cursor.execute("""
+                        UPDATE venues
+                        SET name = ?, capacity = ?, location = ?
+                        WHERE id = ?
+                """, (name, capacity, location, venue_id))
+                connection.commit()
+
+        return redirect(url_for('manage_venues'))
+        
+@app.route("/delete_venue/<int:venue_id>", methods=['POST'])
+def delete_venue(venue_id):
+        if 'user_id' not in session or session['role'] != 'admin':
+                return redirect(url_for('login'))
+        
+        with sqlite3.connect(DATABASE) as connection:
+                cursor = connection.cursor()
+                cursor.execute("DELETE FROM venues WHERE id = ?", (venue_id,))
+                connection.commit()
+
+        return redirect(url_for('manage_venues'))
+
 @app.route("/logout")
 def logout():
       session.clear()
