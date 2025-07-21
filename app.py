@@ -37,6 +37,17 @@ def init_db():
                         location TEXT NOT NULL
                 )
         """)
+        cursor.execute("""
+                CREATE TABLE IF NOT EXISTS event_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        org_name TEXT NOT NULL,
+                        venue TEXT NOT NULL,
+                        date TEXT NOT NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
+                )
+        """)
+        cursor.execute("""INSERT INTO event_history (org_name, venue, date)
+VALUES ('CS', 'Aboitiz', '2025-08-01');""")
         cursor.execute('SELECT COUNT(*) FROM users')
         if cursor.fetchone()[0] == 0:
             users = [
@@ -227,6 +238,19 @@ def delete_equipment(equipment_id):
                 connection.commit()
 
         return redirect(url_for('manage_equipments'))
+
+@app.route("/event_history")
+def event_history():
+        if 'user_id' not in session or session['role'] != 'admin':
+                return redirect(url_for('login'))
+        
+        with sqlite3.connect(DATABASE) as connection:
+                connection.row_factory = sqlite3.Row
+                cursor = connection.cursor()
+                cursor.execute("SELECT * FROM event_history ORDER BY date DESC")
+                events = cursor.fetchall()
+
+        return render_template("event_history.html", events=events)
 
 @app.route("/logout")
 def logout():
