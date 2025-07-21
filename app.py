@@ -32,12 +32,9 @@ def init_db():
         cursor.execute("""
                 CREATE TABLE IF NOT EXISTS equipment (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        venue_id INTEGER,
-                        date TEXT,
-                        org_id TEXT,
-                        equipment TEXT,
-                        FOREIGN KEY (venue_id) REFERENCES venues(id),
-                        FOREIGN KEY (org_id) REFERENCES users(id)
+                        name TEXT NOT NULL,
+                        quantity INTEGER NOT NULL,
+                        location TEXT NOT NULL
                 )
         """)
         cursor.execute('SELECT COUNT(*) FROM users')
@@ -165,6 +162,71 @@ def delete_venue(venue_id):
                 connection.commit()
 
         return redirect(url_for('manage_venues'))
+
+@app.route("/manage_equipments")
+def manage_equipments():
+        if 'user_id' not in session or session['role'] != 'admin':
+               return redirect(url_for('login'))
+        
+        with sqlite3.connect(DATABASE) as connection:
+                connection.row_factory = sqlite3.Row
+                cursor = connection.cursor()
+                cursor.execute("SELECT * FROM equipment")
+                equipments = cursor.fetchall()
+
+        return render_template('manage_equipments.html', equipments=equipments)
+
+
+@app.route("/add_equipment", methods=['POST'])
+def add_equipment():
+        if 'user_id' not in session or session['role'] != 'admin':
+                return redirect(url_for('login'))
+        
+        name = request.form['name']
+        quantity = request.form['quantity']
+        location = request.form['location']
+
+        with sqlite3.connect(DATABASE) as connection:
+                cursor = connection.cursor()
+                cursor.execute("""
+                        INSERT INTO equipment (name, quantity, location)
+                        VALUES (?, ?, ?)
+                """, (name, quantity, location))
+                connection.commit()
+
+        return redirect(url_for('manage_equipments'))
+
+@app.route("/edit_equipment/<int:equipment_id>", methods=['POST'])
+def edit_equipment(equipment_id):
+        if 'user_id' not in session or session['role'] != 'admin':
+               return redirect(url_for('login'))
+        
+        name = request.form['name']
+        quantity = request.form['quantity']
+        location = request.form['location']
+
+        with sqlite3.connect(DATABASE) as connection:
+                cursor = connection.cursor()
+                cursor.execute("""
+                        UPDATE equipment
+                        SET name = ?, quantity = ?, location = ?
+                        WHERE id = ?
+                """, (name, quantity, location, equipment_id))
+                connection.commit()
+        
+        return redirect(url_for('manage_equipments'))
+
+@app.route("/delete_equipment/<int:equipment_id>", methods=['POST'])
+def delete_equipment(equipment_id):
+        if 'user_id' not in session or session['role'] != 'admin':
+               return redirect(url_for('login'))
+        
+        with sqlite3.connect(DATABASE) as connection:
+                cursor = connection.cursor()
+                cursor.execute("DELETE FROM equipment WHERE id = ?", (equipment_id,))
+                connection.commit()
+
+        return redirect(url_for('manage_equipments'))
 
 @app.route("/logout")
 def logout():
