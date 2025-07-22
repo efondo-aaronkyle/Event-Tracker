@@ -99,8 +99,34 @@ def login():
 def dashboard():
         if 'user_id' not in session:
                 return redirect(url_for('login'))
-      
-        return render_template("dashboard.html")
+        
+        with sqlite3.connect(DATABASE) as connection:
+                connection.row_factory = sqlite3.Row
+                cursor = connection.cursor()
+
+                cursor.execute("SELECT COUNT(*) FROM venues")
+                total_venues = cursor.fetchone()[0]
+
+                cursor.execute("SELECT COUNT(DISTINCT venue) FROM event_history WHERE date >= DATE('now')")
+                used_venues = cursor.fetchone()[0]
+
+                available_venues = total_venues - used_venues
+
+                cursor.execute("SELECT SUM(quantity) FROM equipment")
+                total_equipment = cursor.fetchone()[0] or 0
+
+                cursor.execute("SELECT COUNT(*) FROM event_history WHERE date >= DATE('now')")
+                used_equipment = cursor.fetchone()[0]
+
+                available_equipment = total_equipment - used_equipment
+
+        return render_template(
+                "dashboard.html",
+                used_venues=used_venues,
+                available_venues=available_venues,
+                used_equipment=used_equipment,
+                available_equipment=available_equipment
+        )
 
 @app.route("/manage_venues")
 def manage_venues():
