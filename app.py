@@ -46,8 +46,6 @@ def init_db():
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
                 )
         """)
-        cursor.execute("""INSERT INTO event_history (org_name, venue, date)
-VALUES ('CS', 'Aboitiz', '2025-08-01');""")
         cursor.execute('SELECT COUNT(*) FROM users')
         if cursor.fetchone()[0] == 0:
             users = [
@@ -251,6 +249,39 @@ def event_history():
                 events = cursor.fetchall()
 
         return render_template("event_history.html", events=events)
+
+@app.route("/schedule_venue", methods=['GET', 'POST'])
+def schedule_venue():
+        if 'user_id' not in session or session['role'] != 'org':
+                return redirect(url_for('login'))
+        
+        with sqlite3.connect(DATABASE) as connection:
+                connection.row_factory = sqlite3.Row
+                cursor = connection.cursor()
+
+                cursor.execute("SELECT * FROM venues")
+                venues = cursor.fetchall()
+
+                cursor.execute("SELECT * FROM equipment")
+                equipment = cursor.fetchall()
+
+                if request.method == 'POST':
+                        venue_id = request.form['venue_id']
+                        event_date = request.form['event_date']
+                        selected_equipment = request.form.getlist('equipment')
+
+                        cursor.execute("SELECT name FROM venues WHERE id = ?", (venue_id,))
+                        venue_name = cursor.fetchone()['name']
+
+                        cursor.execute("""
+                                INSERT INTO event_history (org_name, venue, date)
+                                VALUES (?, ?, ?)
+                        """, (session['username'], venue_name, event_date))
+
+                        connection.commit()
+                        return redirect(url_for('dashboard'))
+        
+        return render_template("schedule_venue.html", venues=venues, equipment=equipment)
 
 @app.route("/logout")
 def logout():
