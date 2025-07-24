@@ -46,6 +46,16 @@ def init_db():
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
                 )
         """)
+        cursor.execute("""
+                CREATE TABLE IF NOT EXISTS reserved_equipment (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        event_id INTEGER,
+                        equipment_id INTEGER,
+                        quantity INTEGER,
+                        FOREIGN KEY(event_id) REFERENCES event_history(id),
+                        FOREIGN KEY(equipment_id) REFERENCES equipment(id)
+);
+        """)
         cursor.execute('SELECT COUNT(*) FROM users')
         if cursor.fetchone()[0] == 0:
             users = [
@@ -109,13 +119,12 @@ def dashboard():
 
                 cursor.execute("SELECT COUNT(DISTINCT venue) FROM event_history WHERE date >= DATE('now')")
                 used_venues = cursor.fetchone()[0]
-
                 available_venues = total_venues - used_venues
 
                 cursor.execute("SELECT SUM(quantity) FROM equipment")
                 total_equipment = cursor.fetchone()[0] or 0
 
-                cursor.execute("SELECT COUNT(*) FROM event_history WHERE date >= DATE('now')")
+                cursor.execute("SELECT SUM(quantity) FROM reserved_equipment")
                 used_equipment = cursor.fetchone()[0]
 
                 available_equipment = total_equipment - used_equipment
@@ -289,20 +298,58 @@ def schedule_venue():
                 venues = cursor.fetchall()
 
                 cursor.execute("SELECT * FROM equipment")
-                equipment = cursor.fetchall()
+                equipments_raw  = cursor.fetchall()
+
+                equipment = []
+                for eq in equipments_raw:
+                        total_qty = eq['quantity']
+
+                        cursor.execute("""
+                                SELECT SUM(quantity) FROM reserved_equipment
+                                WHERE equipment_id = ?
+                        """, (eq['id'],))
+                        reserved_qty = cursor.fetchone()[0] or 0
+
+                        available_qty = total_qty - reserved_qty
+
+                        equipment.append({
+                                'id': eq['id'],
+                                'name': eq['name'],
+                                'total_quantity': total_qty,
+                                'available_quantity': available_qty
+                        })
 
                 if request.method == 'POST':
                         venue_id = request.form['venue_id']
                         event_date = request.form['event_date']
-                        selected_equipment = request.form.getlist('equipment')
 
                         cursor.execute("SELECT name FROM venues WHERE id = ?", (venue_id,))
-                        venue_name = cursor.fetchone()['name']
+                        venue_row = cursor.fetchone()
+                        if not venue_row:
+                                return "Venue not found", 400
+                        
+                        venue_name = venue_row['name']
 
                         cursor.execute("""
                                 INSERT INTO event_history (org_name, venue, date)
                                 VALUES (?, ?, ?)
                         """, (session['username'], venue_name, event_date))
+
+                        cursor.execute("SELECT last_insert_rowid()")
+                        event_id = cursor.fetchone()[0]
+
+                        for eq in equipment: 
+                                qty_str = request.form.get(f'equipment_{eq["id"]}')
+                                if qty_str:
+                                        try:
+                                                qty = int(qty_str)
+                                                if 0 < qty <= eq["available_quantity"]:
+                                                        cursor.execute("""
+                                                                INSERT INTO reserved_equipment (event_id, equipment_id, quantity)
+                                                                VALUES (?, ?, ?)
+                                                        """, (event_id, eq["id"], qty))
+                                        except ValueError:
+                                              pass      
 
                         connection.commit()
                         return redirect(url_for('dashboard'))
