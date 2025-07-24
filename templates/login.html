@@ -8,21 +8,23 @@
 </head>
 <body class="bg-dark text-white d-flex justify-content-center align-items-center">
     <div class="login-container w-100 d-flex justify-content-center align-items-center">
-        <div class="form-box bg-secondary p-4 rounded shadow">
-            <h2 class="text-center mb-4">Log in</h2>
+        <div class="form-box bg-secondary p-4 rounded shadow text-center">
+            <div class="mb-0">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Event Tracker Logo" width="100" height="100">
+            </div>
             {% if error %}
                 <div class="alert alert-danger text-center py-2 mb-3">{{ error }}</div>
             {% endif %}
             <form method="POST" action="/login">
-                <div class="mb-3">
+                <div class="mb-3 text-start">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" id="username" name="username" class="form-control" required>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3 text-start">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" id="password" name="password" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-warning w-100">Log in &rarr;</button>
+                <button type="submit" class="btn customized-btn w-100 m-0">Login</button>
             </form>
         </div>
     </div>

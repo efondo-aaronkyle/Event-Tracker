@@ -9,24 +9,24 @@
 </head>
 <body class="bg-dark text-white">
     <header class="bg-black py-3 px-4 d-flex justify-content-between align-items-center fixed-top shadow">
-        <h1 class="text-warning m-0">Event History</h1>
-        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-warning text-white">Back to Dashboard</a>
+        <h1 class="text-warning m-0 fw-bold">Event History</h1>
+        <a href="{{ url_for('dashboard') }}" class="btn customized-outline-btn fw-bold">Back to Dashboard</a>
     </header>
 
     <main class="container pt-5 mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="text-light">Recent Events</h2>
+            <h2 class="mt-4 text-light fw-bold">Recent Events</h2>
         </div>
 
         <div class="table-responsive bg-black rounded p-3 shadow">
             <table class="table table-dark table-hover align-middle">
                 <thead class="table-warning text-dark">
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Organization</th>
-                        <th scope="col">Venue</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Recorded At</th>
+                        <th class="fw-bold" scope="col">#</th>
+                        <th class="fw-bold" scope="col">Organization</th>
+                        <th class="fw-bold" scope="col">Venue</th>
+                        <th class="fw-bold" scope="col">Date</th>
+                        <th class="fw-bold" scope="col">Recorded At</th>
                     </tr>
                 </thead>
                 <tbody>

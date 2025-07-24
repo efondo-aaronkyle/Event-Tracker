@@ -14,12 +14,12 @@
         </div>
         <div class="d-flex align-items-center gap-3">
             <span class="badge bg-warning text-dark text-uppercase fw-bold">{{ session['username'] }}</span>
-            <a href="{{ url_for('logout') }}" class="btn btn-warning text-dark fw-bold">Logout</a>
+            <a href="{{ url_for('logout') }}" class="btn customized-btn text-dark fw-bold">Logout</a>
         </div>
     </header>
 
     <main class="container my-5">
-        <h2 class="mb-4 text-light">Dashboard Overview</h2>
+        <h2 class="mb-4 text-light fw-bold">Dashboard</h2>
         <div class="row g-4 mb-5">
             <div class="col-md-3">
                 <div class="bg-black p-4 rounded shadow text-center">
@@ -54,14 +54,14 @@
                     <div class="bg-black p-4 rounded shadow">
                         <h4 class="text-warning">Schedule Venue</h4>
                         <p>View available venues and borrow equipment</p>
-                        <a href="{{ url_for('schedule_venue')}}" class="btn btn-outline-warning">Go to Schedule</a>
+                        <a href="{{ url_for('schedule_venue')}}" class="btn customized-outline-btn fw-bold">Go to Schedule</a>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="bg-black p-4 rounded shadow">
                         <h4 class="text-warning">View Bookings</h4>
                         <p>Check your upcoming reservations</p>
-                        <a href="#" class="btn btn-outline-warning">View Bookings</a>
+                        <a href="#" class="btn customized-outline-btn fw-bold">View Bookings</a>
                     </div> 
                 </div>
             {% else %}
@@ -69,21 +69,21 @@
                     <div class="bg-black p-4 rounded shadow">
                         <h4 class="text-warning">Manage Venues</h4>
                         <p>Add, edit, and delete venue records</p>
-                        <a href="{{ url_for('manage_venues') }}" class="btn btn-outline-warning">Manage Venues</a>
+                        <a href="{{ url_for('manage_venues') }}" class="btn customized-outline-btn fw-bold">Manage Venues</a>
                     </div>  
                 </div>
                 <div class="col-md-4">
                     <div class="bg-black p-4 rounded shadow">
                         <h4 class="text-warning">Manage Equipment</h4>
                         <p>View and manage equipment inventory</p>
-                        <a href="{{ url_for('manage_equipments') }}" class="btn btn-outline-warning">Manage Equipment</a>
+                        <a href="{{ url_for('manage_equipments') }}" class="btn customized-outline-btn fw-bold">Manage Equipment</a>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="bg-black p-4 rounded shadow">
                         <h4 class="text-warning">Events History</h4>
                         <p>Review past reservations and usage logs</p>
-                        <a href="{{ url_for('event_history') }}" class="btn btn-outline-warning">View History</a>
+                        <a href="{{ url_for('event_history') }}" class="btn customized-outline-btn fw-bold">View History</a>
                     </div>
                 </div>
             {% endif %}
