@@ -43,7 +43,8 @@ def init_db():
                         org_name TEXT NOT NULL,
                         venue TEXT NOT NULL,
                         date TEXT NOT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+                        status TEXT DEFAULT 'pending'
                 )
         """)
         cursor.execute("""
@@ -125,7 +126,7 @@ def dashboard():
                 total_equipment = cursor.fetchone()[0] or 0
 
                 cursor.execute("SELECT SUM(quantity) FROM reserved_equipment")
-                used_equipment = cursor.fetchone()[0]
+                used_equipment = cursor.fetchone()[0] or 0
 
                 available_equipment = total_equipment - used_equipment
 
@@ -140,7 +141,7 @@ def dashboard():
 @app.route("/manage_venues")
 def manage_venues():
         if 'user_id' not in session:
-                return render_template(url_for('login'))
+                return redirect(url_for('login'))
       
         with sqlite3.connect(DATABASE) as connection:
                connection.row_factory = sqlite3.Row
@@ -274,16 +275,121 @@ def delete_equipment(equipment_id):
 
 @app.route("/event_history")
 def event_history():
-        if 'user_id' not in session or session['role'] != 'admin':
-                return redirect(url_for('login'))
-        
-        with sqlite3.connect(DATABASE) as connection:
-                connection.row_factory = sqlite3.Row
-                cursor = connection.cursor()
-                cursor.execute("SELECT * FROM event_history ORDER BY date DESC")
-                events = cursor.fetchall()
+    if 'user_id' not in session or session['role'] != 'admin':
+        return redirect(url_for('login'))
 
-        return render_template("event_history.html", events=events)
+    with sqlite3.connect(DATABASE) as connection:
+        connection.row_factory = sqlite3.Row
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM event_history WHERE status != 'done' ORDER BY date ASC")
+        ongoing_events = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM event_history WHERE status = 'done' ORDER BY date DESC")
+        done_events = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM venues")
+        venues = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM equipment")
+        equipment = cursor.fetchall()
+
+        # map event_id → {equipment_id → quantity}
+        reserved = {}
+        for event in ongoing_events:
+            cursor.execute("SELECT equipment_id, quantity FROM reserved_equipment WHERE event_id = ?", (event['id'],))
+            reserved[event['id']] = {row['equipment_id']: row['quantity'] for row in cursor.fetchall()}
+
+        # available quantity for each equipment
+        for eq in equipment:
+            cursor.execute("SELECT SUM(quantity) FROM reserved_equipment WHERE equipment_id = ?", (eq['id'],))
+            reserved_qty = cursor.fetchone()[0] or 0
+            eq['available_quantity'] = eq['quantity'] - reserved_qty
+
+    return render_template("event_history.html", ongoing_events=ongoing_events, done_events=done_events, venues=venues, equipment=equipment, reserved=reserved)
+
+@app.route("/mark_done/<int:event_id>", methods=["POST"])
+def mark_done(event_id):
+    if 'user_id' not in session or session['role'] != 'admin':
+        return redirect(url_for('login'))
+
+    with sqlite3.connect(DATABASE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE event_history SET status = 'done' WHERE id = ?", (event_id,))
+        conn.commit()
+    return redirect(url_for("event_history"))
+
+@app.route("/delete_event/<int:event_id>", methods=["POST"])
+def delete_event(event_id):
+    if 'user_id' not in session or session['role'] != 'admin':
+        return redirect(url_for('login'))
+
+    with sqlite3.connect(DATABASE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM reserved_equipment WHERE event_id = ?", (event_id,))
+        cursor.execute("DELETE FROM event_history WHERE id = ?", (event_id,))
+        conn.commit()
+    return redirect(url_for("event_history"))
+
+@app.route("/edit_event/<int:event_id>", methods=["GET", "POST"])
+def edit_event(event_id):
+    if 'user_id' not in session or session['role'] != 'admin':
+        return redirect(url_for('login'))
+
+    with sqlite3.connect(DATABASE) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get event info
+        cursor.execute("SELECT * FROM event_history WHERE id = ?", (event_id,))
+        event = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM venues")
+        venues = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM equipment")
+        equipments = cursor.fetchall()
+
+        # Fetch reserved quantities
+        reserved = {}
+        cursor.execute("SELECT equipment_id, quantity FROM reserved_equipment WHERE event_id = ?", (event_id,))
+        for row in cursor.fetchall():
+            reserved[row['equipment_id']] = row['quantity']
+
+        if request.method == 'POST':
+            new_venue_id = request.form['venue_id']
+            new_date = request.form['event_date']
+
+            # Get venue name
+            cursor.execute("SELECT name FROM venues WHERE id = ?", (new_venue_id,))
+            new_venue = cursor.fetchone()['name']
+
+            cursor.execute("""
+                UPDATE event_history
+                SET venue = ?, date = ?
+                WHERE id = ?
+            """, (new_venue, new_date, event_id))
+
+            # Delete old reserved equipment
+            cursor.execute("DELETE FROM reserved_equipment WHERE event_id = ?", (event_id,))
+
+            for eq in equipments:
+                qty_str = request.form.get(f'equipment_{eq["id"]}')
+                if qty_str:
+                    try:
+                        qty = int(qty_str)
+                        if qty > 0:
+                            cursor.execute("""
+                                INSERT INTO reserved_equipment (event_id, equipment_id, quantity)
+                                VALUES (?, ?, ?)
+                            """, (event_id, eq['id'], qty))
+                    except ValueError:
+                        pass
+
+            conn.commit()
+            return redirect(url_for("event_history"))
+
+    return render_template("edit_event.html", event=event, venues=venues, equipments=equipments, reserved=reserved)
 
 @app.route("/schedule_venue", methods=['GET', 'POST'])
 def schedule_venue():
@@ -331,8 +437,8 @@ def schedule_venue():
                         venue_name = venue_row['name']
 
                         cursor.execute("""
-                                INSERT INTO event_history (org_name, venue, date)
-                                VALUES (?, ?, ?)
+                                INSERT INTO event_history (org_name, venue, date, status)
+                                VALUES (?, ?, ?, 'pending')
                         """, (session['username'], venue_name, event_date))
 
                         cursor.execute("SELECT last_insert_rowid()")
