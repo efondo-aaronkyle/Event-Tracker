@@ -118,7 +118,7 @@ def dashboard():
                 cursor.execute("SELECT COUNT(*) FROM venues")
                 total_venues = cursor.fetchone()[0]
 
-                cursor.execute("SELECT COUNT(DISTINCT venue) FROM event_history WHERE date >= DATE('now')")
+                cursor.execute("SELECT COUNT(DISTINCT venue) FROM event_history WHERE status != 'done' AND date >= DATE('now')")
                 used_venues = cursor.fetchone()[0]
                 available_venues = total_venues - used_venues
 
@@ -294,30 +294,40 @@ def event_history():
         cursor.execute("SELECT * FROM equipment")
         equipment = cursor.fetchall()
 
-        # map event_id → {equipment_id → quantity}
-        reserved = {}
-        for event in ongoing_events:
-            cursor.execute("SELECT equipment_id, quantity FROM reserved_equipment WHERE event_id = ?", (event['id'],))
-            reserved[event['id']] = {row['equipment_id']: row['quantity'] for row in cursor.fetchall()}
+        for i, event in enumerate(ongoing_events):
+                cursor.execute("""
+                        SELECT equipment_id AS id, quantity FROM reserved_equipment
+                        WHERE event_id = ?
+                """, (event['id'], ))
+                equipment_list = cursor.fetchall()
+                ongoing_events[i] = dict(event)
+                ongoing_events[i]['equipment_list'] = [dict(row) for row in equipment_list]
 
-        # available quantity for each equipment
+        equipment_with_avail = []
         for eq in equipment:
             cursor.execute("SELECT SUM(quantity) FROM reserved_equipment WHERE equipment_id = ?", (eq['id'],))
             reserved_qty = cursor.fetchone()[0] or 0
-            eq['available_quantity'] = eq['quantity'] - reserved_qty
+            eq_dict = dict(eq)
+            eq_dict['available_quantity'] = eq['quantity'] - reserved_qty
+            equipment_with_avail.append(eq_dict)
 
-    return render_template("event_history.html", ongoing_events=ongoing_events, done_events=done_events, venues=venues, equipment=equipment, reserved=reserved)
+    return render_template("event_history.html", ongoing_events=ongoing_events, done_events=done_events, venues=venues, equipment=equipment_with_avail, all_equipment=equipment_with_avail)
 
 @app.route("/mark_done/<int:event_id>", methods=["POST"])
 def mark_done(event_id):
-    if 'user_id' not in session or session['role'] != 'admin':
-        return redirect(url_for('login'))
+        if 'user_id' not in session or session['role'] != 'admin':
+                return redirect(url_for('login'))
 
-    with sqlite3.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE event_history SET status = 'done' WHERE id = ?", (event_id,))
-        conn.commit()
-    return redirect(url_for("event_history"))
+        try:
+                with sqlite3.connect(DATABASE) as connection:
+                        cursor = connection.cursor()
+                        cursor.execute("UPDATE event_history SET status = 'done' WHERE id = ?", (event_id,))
+                        cursor.execute("DELETE FROM reserved_equipment WHERE event_id = ?", (event_id,))
+                        connection.commit()
+                return redirect(url_for("event_history"))
+        except Exception as e:
+               print("Error in mark_done:", e)
+               return "Error", 400
 
 @app.route("/delete_event/<int:event_id>", methods=["POST"])
 def delete_event(event_id):
@@ -331,65 +341,60 @@ def delete_event(event_id):
         conn.commit()
     return redirect(url_for("event_history"))
 
-@app.route("/edit_event/<int:event_id>", methods=["GET", "POST"])
+@app.route("/edit_event/<int:event_id>", methods=["POST"])
 def edit_event(event_id):
     if 'user_id' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
 
-    with sqlite3.connect(DATABASE) as conn:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
 
-        # Get event info
-        cursor.execute("SELECT * FROM event_history WHERE id = ?", (event_id,))
-        event = cursor.fetchone()
+            cursor.execute("SELECT * FROM equipment")
+            equipments = cursor.fetchall()
 
-        cursor.execute("SELECT * FROM venues")
-        venues = cursor.fetchall()
+            new_org = request.form.get("org_name")
+            new_venue_id = request.form.get("venue")
+            new_date = request.form.get("date")
 
-        cursor.execute("SELECT * FROM equipment")
-        equipments = cursor.fetchall()
-
-        # Fetch reserved quantities
-        reserved = {}
-        cursor.execute("SELECT equipment_id, quantity FROM reserved_equipment WHERE event_id = ?", (event_id,))
-        for row in cursor.fetchall():
-            reserved[row['equipment_id']] = row['quantity']
-
-        if request.method == 'POST':
-            new_venue_id = request.form['venue_id']
-            new_date = request.form['event_date']
-
-            # Get venue name
             cursor.execute("SELECT name FROM venues WHERE id = ?", (new_venue_id,))
-            new_venue = cursor.fetchone()['name']
+            venue_row = cursor.fetchone()
+            if venue_row is None:
+                return "Invalid venue", 400
+            new_venue_name = venue_row['name']
 
             cursor.execute("""
-                UPDATE event_history
-                SET venue = ?, date = ?
+                UPDATE event_history SET org_name = ?, venue = ?, date = ?
                 WHERE id = ?
-            """, (new_venue, new_date, event_id))
+            """, (new_org, new_venue_name, new_date, event_id))
 
-            # Delete old reserved equipment
             cursor.execute("DELETE FROM reserved_equipment WHERE event_id = ?", (event_id,))
 
             for eq in equipments:
-                qty_str = request.form.get(f'equipment_{eq["id"]}')
-                if qty_str:
-                    try:
-                        qty = int(qty_str)
-                        if qty > 0:
-                            cursor.execute("""
-                                INSERT INTO reserved_equipment (event_id, equipment_id, quantity)
-                                VALUES (?, ?, ?)
-                            """, (event_id, eq['id'], qty))
-                    except ValueError:
-                        pass
+                form_key = f'equipment_{eq["id"]}'
+                qty_str = request.form.get(form_key)
+
+                if qty_str is None:
+                    continue
+
+                try:
+                    qty = int(qty_str)
+                    if qty > 0:
+                        cursor.execute(
+                            "INSERT INTO reserved_equipment (event_id, equipment_id, quantity) VALUES (?, ?, ?)",
+                            (event_id, eq["id"], qty)
+                        )
+                except ValueError:
+                    print(f"Invalid quantity for {form_key}: {qty_str}")
+                    continue
 
             conn.commit()
-            return redirect(url_for("event_history"))
+        return redirect(url_for('event_history'))
 
-    return render_template("edit_event.html", event=event, venues=venues, equipments=equipments, reserved=reserved)
+    except Exception as e:
+        print("Error while editing event:", e)
+        return "Bad request", 400
 
 @app.route("/schedule_venue", methods=['GET', 'POST'])
 def schedule_venue():
