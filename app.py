@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, url_for, render_template, session, redirect
+from datetime import datetime
 import sqlite3
 import os
 from dotenv import load_dotenv
@@ -466,6 +467,27 @@ def schedule_venue():
                         return redirect(url_for('dashboard'))
         
         return render_template("schedule_venue.html", venues=venues, equipment=equipment)
+
+@app.route("/view_bookings")
+def view_bookings():
+        if 'user_id' not in session or session['role'] != 'org':
+                return redirect(url_for('login'))
+        
+        org_name = session['username']
+        today = datetime.today().strftime('%Y-%m-%d')
+
+        with sqlite3.connect(DATABASE) as connection:
+                connection.row_factory = sqlite3.Row
+                cursor = connection.cursor()
+
+                cursor.execute("""
+                        SELECT * FROM event_history
+                        WHERE org_name = ? AND date >= ? AND status != 'done'
+                        ORDER BY date ASC
+                """, (org_name, today))
+                upcoming_events = cursor.fetchall()
+
+        return render_template("view_bookings.html", upcoming_events=upcoming_events)
 
 @app.route("/logout")
 def logout():
