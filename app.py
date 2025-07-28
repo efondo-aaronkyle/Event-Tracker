@@ -56,7 +56,7 @@ def init_db():
                         quantity INTEGER,
                         FOREIGN KEY(event_id) REFERENCES event_history(id),
                         FOREIGN KEY(equipment_id) REFERENCES equipment(id)
-);
+                );
         """)
         cursor.execute('SELECT COUNT(*) FROM users')
         if cursor.fetchone()[0] == 0:
