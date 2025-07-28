@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, url_for, render_template, session, redirect
-from datetime import datetime
+from datetime import datetime, date
 import sqlite3
 import os
 from dotenv import load_dotenv
@@ -527,6 +527,27 @@ def get_events():
         except Exception as e:
                 print("Error loading events:", e)
                 return jsonify([])
+        
+@app.route("/recent_events")
+def recent_events():
+        with sqlite3.connect(DATABASE) as connection:
+                cursor = connection.cursor()
+                cursor.execute("""
+                        SELECT id, org_name, date, venue
+                        FROM event_history
+                        ORDER BY date DESC
+                        LIMIT 6
+                """)
+                rows = cursor.fetchall()
+        
+        events = [{
+                'id': row[0],
+                'title': row[1],
+                'start': row[2],
+                'venue': row[3]
+        } for row in rows]
+
+        return jsonify(events)
 
 @app.route("/logout")
 def logout():
