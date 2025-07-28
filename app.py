@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, url_for, render_template, session, redirect
-from datetime import datetime, date
+from datetime import datetime
 import sqlite3
 import os
 from dotenv import load_dotenv
