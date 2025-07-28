@@ -9,20 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
             center: 'title',
             right: 'dayGridMonth, timeGridWeek'
         },
-        events: [
-            {
-                title: 'MS - Engr AVR',
-                start: '2025-07-15'
-            },
-            {
-                title: 'PASOA - Gym',
-                start: '2025-07-16'
-            },
-            {
-                title: 'CS - DOST Lab',
-                start: '2025-07-17'
-            }
-        ]
+        events: '/get_events'
     });
     calendar.render();
 });

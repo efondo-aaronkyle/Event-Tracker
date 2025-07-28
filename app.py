@@ -489,6 +489,45 @@ def view_bookings():
 
         return render_template("view_bookings.html", upcoming_events=upcoming_events)
 
+@app.route("/get_events")
+def get_events():
+        if 'user_id' not in session:
+                return jsonify([])
+        
+        try:
+                with sqlite3.connect(DATABASE) as connection:
+                        connection.row_factory = sqlite3.Row
+                        cursor = connection.cursor()
+
+                        today = datetime.today().strftime('%Y-%m-%d')
+
+                        if session['role'] == 'org':
+                                cursor.execute("""
+                                        SELECT * FROM event_history 
+                                        WHERE org_name = ? AND status != 'done' AND date >= ?
+                                        ORDER BY date ASC
+                                """, (session['username'], today))
+                        else:
+                                cursor.execute("""
+                                        SELECT * FROM event_history
+                                        WHERE status != 'done' AND date >= ?
+                                        ORDER BY date ASC
+                                """, (today,))
+
+                        events = cursor.fetchall()
+
+                        event_list = []
+                        for event in events:
+                                event_list.append({
+                                        "title": f"{event['org_name']} - {event['venue']}",
+                                        "start": event['date']
+                                })
+                        
+                        return jsonify(event_list)
+        except Exception as e:
+                print("Error loading events:", e)
+                return jsonify([])
+
 @app.route("/logout")
 def logout():
       session.clear()
