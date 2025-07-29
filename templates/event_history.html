@@ -24,6 +24,8 @@
                             <th class="fw-bold" scope="col">Organization</th>
                             <th class="fw-bold" scope="col">Venue</th>
                             <th class="fw-bold" scope="col">Date</th>
+                            <th class="fw-bold" scope="col">Start Time</th>
+                            <th class="fw-bold" scope="col">End Time</th>
                             <th class="fw-bold" scope="col">Recorded At</th>
                             <th class="fw-bold" scope="col">Actions</th>
                         </tr>
@@ -35,6 +37,8 @@
                             <td>{{ event['org_name'] }}</td>
                             <td>{{ event['venue'] }}</td>
                             <td>{{ event['date'] }}</td>
+                            <td>{{ event['start_time'] }}</td>
+                            <td>{{ event['end_time'] }}</td>
                             <td>{{ event['created_at'] }}</td>
                             <td class="d-flex gap-1">
                                 <button class="btn btn-sm btn-outline-info fw-bold" data-bs-toggle="modal" data-bs-target="#editEventModal{{ event['id'] }}">Edit</button>
@@ -72,6 +76,14 @@
                                                 <label class="form-label fw-bold">Date</label>
                                                 <input type="date" class="form-control" name="date" value="{{ event['date'] }}" required>
                                             </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Start Time</label>
+                                                <input type="time" class="form-control" name="start_time" value="{{ event['start_time'] }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">End Time</label>
+                                                <input type="time" class="form-control" name="end_time" value="{{ event['end_time'] }}" required>
+                                            </div>
                                             <hr class="text-white">
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold text-warning">Edit Equipment</label>
@@ -108,11 +120,13 @@
                 <table class="table table-dark table-hover align-middle">
                     <thead class="table-warning text-dark">
                         <tr>
-                            <th>#</th>
-                            <th>Organization</th>
-                            <th>Venue</th>
-                            <th>Date</th>
-                            <th>Recorded At</th>
+                            <th class="fw-bold" scope="col">#</th>
+                            <th class="fw-bold" scope="col">Organization</th>
+                            <th class="fw-bold" scope="col">Venue</th>
+                            <th class="fw-bold" scope="col">Date</th>
+                            <th class="fw-bold" scope="col">Start Time</th>
+                            <th class="fw-bold" scope="col">End Time</th>
+                            <th class="fw-bold" scope="col">Recorded At</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -122,6 +136,8 @@
                             <td>{{ event['org_name'] }}</td>
                             <td>{{ event['venue'] }}</td>
                             <td>{{ event['date'] }}</td>
+                            <td>{{ event['start_time'] | format_time_ampm }}</td>
+                            <td>{{ event['end_time'] | format_time_ampm }}</td>
                             <td>{{ event['created_at'] }}</td>
                         </tr>
                         {% endfor %}

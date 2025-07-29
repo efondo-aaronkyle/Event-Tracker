@@ -22,16 +22,22 @@ document.addEventListener('DOMContentLoaded', function () {
             events.forEach(event => {
                 const card = document.createElement('div');
                 card.className = 'col';
+                const startDate = new Date(event.start);
+                const endDate = new Date(event.end);
+                const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
+                const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
+
+                const formattedDate = startDate.toLocaleDateString(undefined, optionsDate);
+                const formattedStartTime = startDate.toLocaleTimeString(undefined, optionsTime).replace(/^0/, '');
+                const formattedEndTime = endDate.toLocaleTimeString(undefined, optionsTime).replace(/^0/, '');
+
                 card.innerHTML = `
                     <div class="card bg-black text-white border border-warning shadow-sm h-100">
                         <div class="card-body">
                             <h5 class="card-title text-warning">${event.title}</h5>
                             <p class="card-text mb-1">Reserved: <strong>${event.venue}</strong></p>
-                            <p class="card-text"><small>${new Date(event.start).toLocaleDateString(undefined, {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}</small></p>
+                            <p class="card-text mb-0"><small>${formattedDate}</small></p>
+                            <p class="card-text"><small>${formattedStartTime} - ${formattedEndTime}</small></p>
                         </div>
                     </div>
                 `;

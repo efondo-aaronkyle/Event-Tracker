@@ -44,6 +44,8 @@ def init_db():
                         org_name TEXT NOT NULL,
                         venue TEXT NOT NULL,
                         date TEXT NOT NULL,
+                        start_time TEXT NOT NULL,
+                        end_time TEXT NOT NULL,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
                         status TEXT DEFAULT 'pending'
                 )
@@ -296,13 +298,16 @@ def event_history():
         equipment = cursor.fetchall()
 
         for i, event in enumerate(ongoing_events):
+                event_dict = dict(event)
+                event_dict['start_time'] = datetime.strptime(event_dict['start_time'], "%H:%M").strftime("%I:%M %p")
+                event_dict['end_time'] = datetime.strptime(event_dict['end_time'], "%H:%M").strftime("%I:%M %p")
                 cursor.execute("""
                         SELECT equipment_id AS id, quantity FROM reserved_equipment
                         WHERE event_id = ?
                 """, (event['id'], ))
                 equipment_list = cursor.fetchall()
-                ongoing_events[i] = dict(event)
-                ongoing_events[i]['equipment_list'] = [dict(row) for row in equipment_list]
+                event_dict['equipment_list'] = [dict(row) for row in equipment_list]
+                ongoing_events[i] = event_dict
 
         equipment_with_avail = []
         for eq in equipment:
@@ -313,6 +318,13 @@ def event_history():
             equipment_with_avail.append(eq_dict)
 
     return render_template("event_history.html", ongoing_events=ongoing_events, done_events=done_events, venues=venues, equipment=equipment_with_avail, all_equipment=equipment_with_avail)
+
+@app.template_filter('format_time_ampm')
+def format_time_ampm(value):
+        try:
+                return datetime.strptime(value, "%H:%M").strftime("%I:%M %p")
+        except:
+                return value
 
 @app.route("/mark_done/<int:event_id>", methods=["POST"])
 def mark_done(event_id):
@@ -358,6 +370,8 @@ def edit_event(event_id):
             new_org = request.form.get("org_name")
             new_venue_id = request.form.get("venue")
             new_date = request.form.get("date")
+            new_start_time = request.form.get("start_time")
+            new_end_time = request.form.get("end_time")
 
             cursor.execute("SELECT name FROM venues WHERE id = ?", (new_venue_id,))
             venue_row = cursor.fetchone()
@@ -366,9 +380,9 @@ def edit_event(event_id):
             new_venue_name = venue_row['name']
 
             cursor.execute("""
-                UPDATE event_history SET org_name = ?, venue = ?, date = ?
+                UPDATE event_history SET org_name = ?, venue = ?, date = ?, start_time = ?, end_time = ?
                 WHERE id = ?
-            """, (new_org, new_venue_name, new_date, event_id))
+            """, (new_org, new_venue_name, new_date, new_start_time, new_end_time, event_id))
 
             cursor.execute("DELETE FROM reserved_equipment WHERE event_id = ?", (event_id,))
 
@@ -434,6 +448,8 @@ def schedule_venue():
                 if request.method == 'POST':
                         venue_id = request.form['venue_id']
                         event_date = request.form['event_date']
+                        start_time = request.form['start_time']
+                        end_time = request.form['end_time']
 
                         cursor.execute("SELECT name FROM venues WHERE id = ?", (venue_id,))
                         venue_row = cursor.fetchone()
@@ -443,9 +459,9 @@ def schedule_venue():
                         venue_name = venue_row['name']
 
                         cursor.execute("""
-                                INSERT INTO event_history (org_name, venue, date, status)
-                                VALUES (?, ?, ?, 'pending')
-                        """, (session['username'], venue_name, event_date))
+                                INSERT INTO event_history (org_name, venue, date, start_time, end_time, status)
+                                VALUES (?, ?, ?, ?, ?, 'pending')
+                        """, (session['username'], venue_name, event_date, start_time, end_time))
 
                         cursor.execute("SELECT last_insert_rowid()")
                         event_id = cursor.fetchone()[0]
@@ -485,7 +501,14 @@ def view_bookings():
                         WHERE org_name = ? AND date >= ? AND status != 'done'
                         ORDER BY date ASC
                 """, (org_name, today))
-                upcoming_events = cursor.fetchall()
+                events = cursor.fetchall()
+
+                upcoming_events = []
+                for event in events:
+                        event_dict = dict(event)
+                        event_dict['start_time'] = datetime.strptime(event_dict['start_time'], "%H:%M").strftime("%I:%M %p")
+                        event_dict['end_time'] = datetime.strptime(event_dict['end_time'], "%H:%M").strftime("%I:%M %p")
+                        upcoming_events.append(event_dict)
 
         return render_template("view_bookings.html", upcoming_events=upcoming_events)
 
@@ -518,9 +541,12 @@ def get_events():
 
                         event_list = []
                         for event in events:
+                                start_datetime = f"{event['date']}T{event['start_time']}:00"
+                                end_datetime = f"{event['date']}T{event['end_time']}:00"
                                 event_list.append({
                                         "title": f"{event['org_name']} - {event['venue']}",
-                                        "start": event['date']
+                                        "start": start_datetime,
+                                        "end": end_datetime
                                 })
                         
                         return jsonify(event_list)
@@ -531,21 +557,27 @@ def get_events():
 @app.route("/recent_events")
 def recent_events():
         with sqlite3.connect(DATABASE) as connection:
+                connection.row_factory = sqlite3.Row
                 cursor = connection.cursor()
                 cursor.execute("""
-                        SELECT id, org_name, date, venue
+                        SELECT id, org_name, date, venue, start_time, end_time 
                         FROM event_history
                         ORDER BY date DESC
                         LIMIT 6
                 """)
                 rows = cursor.fetchall()
         
-        events = [{
-                'id': row[0],
-                'title': row[1],
-                'start': row[2],
-                'venue': row[3]
-        } for row in rows]
+        events = []
+        for row in rows:
+                start_datetime = f"{row['date']} {row['start_time']}"
+                end_datetime = f"{row['date']} {row['end_time']}"
+                events.append({
+                        'id': row['id'],
+                        'title': row['org_name'],
+                        'venue': row['venue'],
+                        'start': start_datetime,
+                        'end': end_datetime 
+                })
 
         return jsonify(events)
 

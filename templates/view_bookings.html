@@ -22,6 +22,8 @@
                         <th class="fw-bold" scope="col">#</th>
                         <th class="fw-bold" scope="col">Venue</th>
                         <th class="fw-bold" scope="col">Date</th>
+                        <th class="fw-bold" scope="col">Start Time</th>
+                        <th class="fw-bold" scope="col">End Time</th>
                         <th class="fw-bold" scope="col">Recorded At</th>
                     </tr>
                 </thead>
@@ -31,6 +33,8 @@
                         <td>{{ loop.index }}</td>
                         <td>{{ event['venue'] }}</td>
                         <td>{{ event['date'] }}</td>
+                        <td>{{ event['start_time'] }}</td>
+                        <td>{{ event['end_time'] }}</td>
                         <td>{{ event['created_at'] }}</td>
                     </tr>
                     {% endfor %}
