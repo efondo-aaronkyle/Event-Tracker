@@ -28,7 +28,6 @@
                         <th class="fw-bold" scope="col">Venue Name</th>
                         <th class="fw-bold" scope="col">Capacity</th>
                         <th class="fw-bold" scope="col">Location</th>
-                        <th class="fw-bold" scope="col">Availability</th>
                         <th class="fw-bold" scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -38,11 +37,6 @@
                         <td>{{ venue.name }}</td>
                         <td>{{ venue.capacity }}</td>
                         <td>{{ venue.location }}</td>
-                        <td>
-                            <span class="badge {{ 'bg-success' if venue.is_available else 'bg-danger' }}">
-                                {{ 'Available' if venue.is_available else 'Unavailable'}}
-                            </span>
-                        </td>
                         <td>
                             <button class="btn btn-sm customized-edit-btn me-2 fw-bold" data-bs-toggle="modal" data-bs-target="#editVenueModal{{ venue.id }}">Edit</button>
                             <form method="POST" action="{{ url_for('delete_venue', venue_id=venue.id) }}" style="display: inline;">

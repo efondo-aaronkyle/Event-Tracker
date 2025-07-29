@@ -28,7 +28,6 @@
                         <th class="fw-bold" scope="col">Name</th>
                         <th class="fw-bold" scope="col">Quantity</th>
                         <th class="fw-bold" scope="col">Location</th>
-                        <th class="fw-bold" scope="col">Availability</th>
                         <th class="fw-bold" scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -38,11 +37,6 @@
                         <td>{{ eq.name }}</td>
                         <td>{{ eq.quantity }}</td>
                         <td>{{ eq.location }}</td>
-                        <td>
-                            <span class="badge {{ 'bg-success' if eq.is_available else 'bg-danger' }}">
-                                {{ 'Available' if eq.is_available else 'Unavailable' }}
-                            </span>
-                        </td>
                         <td>
                             <button class="btn btn-sm customized-edit-btn me-2 fw-bold" data-bs-toggle="modal" data-bs-target="#editEquipmentModal{{ eq.id }}">Edit</button>
                             <form method="POST" action="{{ url_for('delete_equipment', equipment_id=eq.id) }}" style="display: inline;">

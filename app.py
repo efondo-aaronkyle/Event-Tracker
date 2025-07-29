@@ -151,12 +151,6 @@ def manage_venues():
                cursor = connection.cursor()
                cursor.execute("SELECT * FROM venues")
                venues = cursor.fetchall()
-
-        venue_list = []
-        for row in venues:
-                venue = dict(row)
-                venue['is_available'] = True
-                venue_list.append(venue)
                
         return render_template('manage_venues.html', venues=venues)
 
