@@ -164,7 +164,7 @@ h2 {
 
 @media (max-width: 576px) {
     h1, h2 {
-        font-size: 1.25rem;
+        font-size: 1rem;
     }
 
     .table-responsive {
@@ -191,5 +191,23 @@ h2 {
 
     .modal-dialog {
         margin: 1rem;
+    }
+
+    .fc-toolbar-chunk {
+        display: flex;
+        flex-wrap: nowrap;
+        padding: 0.1rem 0.4rem;
+        font-size: 0.55rem;
+        gap: 0;
+    }
+
+    .fc-prev-button, .fc-next-button, .fc-today-button, .fc-button-group, .fc-timeGridWeek-button {
+        margin-right: 0;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .fc-toolbar-title {
+        font-size: 0.55rem !important;
     }
 }
