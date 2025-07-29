@@ -7,6 +7,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <style>
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
 </head>
 <body class="bg-dark text-white">
     <header class="bg-black py-3 px-4 d-flex justify-content-between align-items-center">
@@ -24,26 +29,26 @@
         <div class="row g-4 mb-5">
             <div class="col-md-3">
                 <div class="bg-black p-4 rounded shadow text-center">
-                    <h5 class="text-warning">Used Venues</h5>
+                    <h5 class="text-warning fw-bold">Used Venues</h5>
                     <p class="fs-3 fw-bold">{{ used_venues }}</p>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="bg-black p-4 rounded shadow text-center">
-                    <h5 class="text-warning">Available Venues</h5>
+                    <h5 class="text-warning fw-bold">Available Venues</h5>
                     <p class="fs-3 fw-bold">{{ available_venues }}</p>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="bg-black p-4 rounded shadow text-center">
-                    <h5 class="text-warning">Used Equipments</h3>
+                    <h5 class="text-warning fw-bold">Used Equipments</h3>
                     <p class="fs-3 fw-bold">{{ used_equipment }}</p> 
                 </div>
                 
             </div>
             <div class="col-md-3">
                 <div class="bg-black p-4 rounded shadow text-center">
-                    <h5 class="text-warning">Available Equipments</h3>
+                    <h5 class="text-warning fw-bold">Available Equipments</h3>
                     <p class="fs-3 fw-bold">{{ available_equipment }}</p>  
                 </div>
             </div>
@@ -53,14 +58,14 @@
             {% if session['role'] == 'org' %}
                 <div class="col-md-6">
                     <div class="bg-black p-4 rounded shadow">
-                        <h4 class="text-warning">Schedule Venue</h4>
+                        <h4 class="text-warning fw-bold">Schedule Venue</h4>
                         <p>View available venues and borrow equipment</p>
                         <a href="{{ url_for('schedule_venue')}}" class="btn customized-outline-btn fw-bold">Go to Schedule</a>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="bg-black p-4 rounded shadow">
-                        <h4 class="text-warning">View Bookings</h4>
+                        <h4 class="text-warning fw-bold">View Bookings</h4>
                         <p>Check your upcoming reservations</p>
                         <a href="{{ url_for('view_bookings') }}" class="btn customized-outline-btn fw-bold">View Bookings</a>
                     </div> 
@@ -68,21 +73,21 @@
             {% else %}
                 <div class="col-md-4">
                     <div class="bg-black p-4 rounded shadow">
-                        <h4 class="text-warning">Manage Venues</h4>
+                        <h4 class="text-warning fw-bold">Manage Venues</h4>
                         <p>Add, edit, and delete venue records</p>
                         <a href="{{ url_for('manage_venues') }}" class="btn customized-outline-btn fw-bold">Manage Venues</a>
                     </div>  
                 </div>
                 <div class="col-md-4">
                     <div class="bg-black p-4 rounded shadow">
-                        <h4 class="text-warning">Manage Equipment</h4>
+                        <h4 class="text-warning fw-bold">Manage Equipment</h4>
                         <p>View and manage equipment inventory</p>
                         <a href="{{ url_for('manage_equipments') }}" class="btn customized-outline-btn fw-bold">Manage Equipment</a>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="bg-black p-4 rounded shadow">
-                        <h4 class="text-warning">Events History</h4>
+                        <h4 class="text-warning fw-bold">Events History</h4>
                         <p>Review past reservations and usage logs</p>
                         <a href="{{ url_for('event_history') }}" class="btn customized-outline-btn fw-bold">View History</a>
                     </div>
@@ -91,14 +96,14 @@
         </div>
 
         <div class="mb-5">
-            <h3 class="text-light">Calendar (Upcoming Events)</h3>
+            <h3 class="text-light fw-bold">Calendar (Upcoming Events)</h3>
             <div class="bg-black p-3 rounded mt-3">
                 <div id="calendar" class="p-3 bg-dark rounded"></div>
             </div>
         </div>
 
         <div class="mt-5">
-            <h3 class="text-light mb-4">Recent Scheduled Events</h3>
+            <h3 class="text-light mb-4 fw-bold">Recent Scheduled Events</h3>
             <div class="row row-cols-1 row-cols-md-3 g-4" id="recent-events-container">
             </div>
         </div>

@@ -14,7 +14,7 @@
     </header>
 
     <main class="container mt-5 pt-5">
-        <h3 class="mb-4 text-light">Upcoming Scheduled Events</h3>
+        <h3 class="mb-4 text-light fw-bold">Upcoming Scheduled Events</h3>
         <div class="table-responsive bg-black p-3 rounded shadow">
             <table class="table table-dark table-hover align-middle">
                 <thead class="table-warning text-dark">
@@ -41,7 +41,7 @@
                 </tbody>
             </table>
             {% if not upcoming_events %}
-            <p class="text-muted mt-3">No upcoming bookings found</p>
+            <p class="text-light fw-bold">No upcoming bookings found</p>
             {% endif %}
         </div>
     </main>

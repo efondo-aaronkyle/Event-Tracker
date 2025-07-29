@@ -38,10 +38,12 @@
                         <td>{{ venue.capacity }}</td>
                         <td>{{ venue.location }}</td>
                         <td>
-                            <button class="btn btn-sm customized-edit-btn me-2 fw-bold" data-bs-toggle="modal" data-bs-target="#editVenueModal{{ venue.id }}">Edit</button>
-                            <form method="POST" action="{{ url_for('delete_venue', venue_id=venue.id) }}" style="display: inline;">
-                                <button type="submit" class="btn btn-sm cutsomized-delete-btn fw-bold" onclick="return confirm('Are you sure you want to delete this venue?');">Delete</button>
-                            </form>
+                            <div class="d-flex" style="gap: 8px">
+                                <button class="btn btn-sm customized-edit-btn mr-4 fw-bold customized-btn-size" data-bs-toggle="modal" data-bs-target="#editVenueModal{{ venue.id }}">Edit</button>
+                                <form method="POST" action="{{ url_for('delete_venue', venue_id=venue.id) }}">
+                                    <button type="submit" class="btn btn-sm cutsomized-delete-btn fw-bold customized-btn-size" onclick="return confirm('Are you sure you want to delete this venue?');">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
 

@@ -41,13 +41,15 @@
                             <td>{{ event['end_time'] }}</td>
                             <td>{{ event['created_at'] }}</td>
                             <td class="d-flex gap-1">
-                                <button class="btn btn-sm btn-outline-info fw-bold" data-bs-toggle="modal" data-bs-target="#editEventModal{{ event['id'] }}">Edit</button>
-                                <form action="{{ url_for('delete_event', event_id=event['id']) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this event?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
-                                <form action="{{ url_for('mark_done', event_id=event['id']) }}" method="POST" style="display: inline;">
-                                    <button type="submit" class="btn btn-sm btn-outline-success">Done</button>
-                                </form>
+                                <div class="d-flex" style="gap: 8px">
+                                    <button class="btn btn-sm btn-outline-info fw-bold" data-bs-toggle="modal" data-bs-target="#editEventModal{{ event['id'] }}">Edit</button>
+                                    <form action="{{ url_for('delete_event', event_id=event['id']) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this event?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                    <form action="{{ url_for('mark_done', event_id=event['id']) }}" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">Done</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
 
@@ -109,7 +111,7 @@
                     </tbody>
                 </table>
                 {% if not ongoing_events %}
-                <p class="text-muted">No ongoing or upcoming events</p>
+                <p class="text-light fw-bold">No ongoing or upcoming events</p>
                 {% endif %}
             </div>
         </section>
@@ -144,7 +146,7 @@
                     </tbody>
                 </table>
                 {% if not done_events %}
-                <p class="text-muted">No completed events.</p>
+                <p class="text-light fw-bold">No completed events.</p>
                 {% endif %}
             </div>
         </section>

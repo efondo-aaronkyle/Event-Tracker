@@ -38,10 +38,12 @@
                         <td>{{ eq.quantity }}</td>
                         <td>{{ eq.location }}</td>
                         <td>
-                            <button class="btn btn-sm customized-edit-btn me-2 fw-bold" data-bs-toggle="modal" data-bs-target="#editEquipmentModal{{ eq.id }}">Edit</button>
-                            <form method="POST" action="{{ url_for('delete_equipment', equipment_id=eq.id) }}" style="display: inline;">
-                                <button type="submit" class="btn btn-sm cutsomized-delete-btn fw-bold" onclick="return confirm('Are you sure you want to delete this equipment?');">Delete</button>
-                            </form>
+                            <div class="d-flex" style="gap: 8px">
+                                <button class="btn btn-sm customized-edit-btn me-2 fw-bold" data-bs-toggle="modal" data-bs-target="#editEquipmentModal{{ eq.id }}">Edit</button>
+                                <form method="POST" action="{{ url_for('delete_equipment', equipment_id=eq.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm cutsomized-delete-btn fw-bold" onclick="return confirm('Are you sure you want to delete this equipment?');">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
 
