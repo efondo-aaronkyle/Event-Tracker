@@ -1,31 +1,43 @@
-# 🎯 Event Tracker
+# EVENT-TRACKER
 
-A web-based scheduling and resource management system for school venues and equipment, built using Flask and Bootstrap 5.
+Transform Events Into Seamless, Effortless Experiences
 
-## 📌 Features
-- User Authentication with Role-Based Access (Admin & User)
+![Last commit](https://img.shields.io/badge/last_commit-july-brightgreen) ![HTML](https://img.shields.io/badge/html-54.4%25-orange) ![Languages](https://img.shields.io/badge/languages-4-blue)
 
-- Venue and Equipment Management (Add, Edit, Delete)
+## Built With
 
-- Event Scheduling with calendar view (FullCalendar)
+- **Frontend:** HTML, CSS, Bootstrap, JavaScript
+- **Backend:** Flask, Python
+- **Database:** SQLite
+- **Production Server:** Gunicorn
+- **Deployment:** Render
+- **CI/CD:** GitHub Actions
+  
+## Overview
 
-- Availability Tracking of venues and equipment
+Event-Tracker is a robust Flask-powered web application designed to streamline school event planning and resource management. It provides a secure, scalable platform for scheduling, tracking, and managing venues, equipment, and events with ease.
 
-- History View for Admins to monitor past events
+### Why Event-Tracker?
 
-- Mobile-Responsive UI
+This project helps developers build a comprehensive event management system with core functionalities including: 
+- **Role-Based Access Control:** Ensures secure, tailored user experiences based on roles.
+- **Event Scheduling & History:** Facilitates efficient booking viewing, and tracking of past and upcoming events.
+- **Resource Management:** Simplifies managing venues and equipment inventories through intuitive interfaces.
+- **Automated CI/CD Workflows:** Supports reliable deployment and continuous integration for seamless updates.
+- **Secure Authentication:** Protects user data and access with integrated login and session management.
 
-## 💻 Tech Stack
-- Backend: Python, Flask
-- Frontend: HTML, CSS, Bootstrap 5, FullCalendar.js
-- Database: SQLite (or another RDBMS)
-- Templating Engine: Jinja2
+## Installation
+Build Event-Tracker from the source and install dependencies:
+1. **Clone the repository**
+```bash
+git clone https://github.com/efondo-aaronkyle/Event-Tracker
+```
+2. **Navigate to the project directory**
+```bash
+cd Event-Tracker
+```
 
-## 🧪 Sample Accounts
-### Admin Account
-- Username: admin
-- Password: admin123
-
-### User Account
-- Username: pasoa
-- Password: pasoa123
+2. **Install the dependencies**
+```bash
+pip install -r requirements.txt
+```
