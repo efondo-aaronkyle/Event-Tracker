@@ -2,6 +2,8 @@
 
 Transform Events Into Seamless, Effortless Experiences
 
+**Base URL:** `https://event-tracker-w1xe.onrender.com` 
+
 ![Last commit](https://img.shields.io/badge/last_commit-july-brightgreen) ![HTML](https://img.shields.io/badge/html-54.4%25-orange) ![Languages](https://img.shields.io/badge/languages-4-blue)
 
 ## Built With
